@@ -52,10 +52,10 @@ const initialState: State = {
   districtCode: window.localStorage.getItem('districtCode') || DEFAULT_DISTRICT,
   timeIntervalMs:
     parseInt(window.localStorage.getItem('timeIntervalMs') || '') ||
-    TIME_INTERVALS.find(({ id }) => id === '14days')!.milliseconds,
+    TIME_INTERVALS.find(({ id }) => id === '30days')!.milliseconds,
 
   // Temporary settings
-  needle: new Date(),
+  needle: new Date(0),
 };
 
 export const rootSlice = createSlice({
@@ -64,6 +64,14 @@ export const rootSlice = createSlice({
   reducers: {
     fetchDataSuccess: (state, action: PayloadAction<DistrictStatsRecord[]>) => {
       state.rawData = action.payload;
+
+      let maxTimestamp = 0;
+      action.payload.forEach((item) => {
+        if (item.date.getTime() > maxTimestamp) {
+          maxTimestamp = item.date.getTime();
+        }
+      });
+      state.needle = new Date(maxTimestamp);
     },
     setDistrictCode: (state, action: PayloadAction<string>) => {
       state.districtCode = action.payload;

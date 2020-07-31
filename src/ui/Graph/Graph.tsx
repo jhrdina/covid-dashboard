@@ -108,9 +108,7 @@ const Graph = ({ data, onChangeNeedle, needle }: GraphProps) => {
           />
         </FlexibleXYPlot>
       </div>
-      <div
-        style={{ padding: 16, opacity: typeof needle !== 'undefined' ? 1 : 0 }}
-      >
+      <div style={{ padding: 16, opacity: needle ? 1 : 0 }}>
         {formatDate(new Date(detailPoint?.x || 0))}:{' '}
         <strong>{detailPoint?.y}</strong> aktivních nakažených ⤴️
       </div>
