@@ -27,6 +27,7 @@ const Wrapper = styled('div')({
   display: 'flex',
   flexDirection: 'column',
   height: '100vh',
+  color: '#333333',
 });
 
 const Toolbar = styled('div')({
@@ -39,6 +40,14 @@ const LinksBox = styled('div')({
   fontSize: 14,
   flex: 1,
   textAlign: 'right',
+});
+
+const NoData = styled('div')({
+  flex: 1,
+  padding: '8px 16px',
+  fontSize: 14,
+  color: 'gray',
+  textAlign: 'center',
 });
 
 const SourceLink = styled('a')({
@@ -170,11 +179,15 @@ const App = () => {
           </SourceLink>
         </LinksBox>
       </Toolbar>
-      <Graph
-        data={rawData}
-        needle={needle.getTime()}
-        onChangeNeedle={(needle) => dispatch(setNeedle(new Date(needle)))}
-      />
+      {rawData.length > 0 ? (
+        <Graph
+          data={rawData}
+          needle={needle.getTime()}
+          onChangeNeedle={(needle) => dispatch(setNeedle(new Date(needle)))}
+        />
+      ) : (
+        <NoData>Žádná data</NoData>
+      )}
     </Wrapper>
   );
 };
