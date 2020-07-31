@@ -35,10 +35,14 @@ const Toolbar = styled('div')({
   padding: '8px 16px',
 });
 
-const SourceLink = styled('a')({
+const LinksBox = styled('div')({
   fontSize: 14,
   flex: 1,
   textAlign: 'right',
+});
+
+const SourceLink = styled('a')({
+  display: 'block',
   color: 'gray',
 });
 
@@ -149,13 +153,22 @@ const App = () => {
             dispatch(setTimeIntervalMs(newTimeIntervalMs));
           }}
         />
-        <SourceLink
-          href="https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Zdroj dat
-        </SourceLink>
+        <LinksBox>
+          <SourceLink
+            href="https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Zdroj dat
+          </SourceLink>
+          <SourceLink
+            href="https://github.com/jhrdina/covid-dashboard"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Zdrojový kód
+          </SourceLink>
+        </LinksBox>
       </Toolbar>
       <Graph
         data={rawData}
