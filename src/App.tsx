@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from 'react';
 import DistrictsMap from './ui/CzMap/DistrictsMap';
 import RegionsMap from './ui/CzMap/RegionsMap';
-import { styled, withStyles, makeStyles } from '@material-ui/core/styles';
+import { styled, makeStyles } from '@material-ui/core/styles';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import { useSelector, useDispatch } from 'react-redux';
@@ -14,6 +14,9 @@ import {
   switchDataView,
   selectDataForGraph,
   setTimeIntervalMs,
+  selectDataForMap,
+  selectMaxActiveCount,
+  setNeedle,
 } from './model/state';
 import { all as allDistricts } from './model/district';
 import { all as allRegions } from './model/region';
@@ -28,7 +31,15 @@ const Wrapper = styled('div')({
 
 const Toolbar = styled('div')({
   display: 'flex',
+  alignItems: 'center',
   padding: '8px 16px',
+});
+
+const SourceLink = styled('a')({
+  fontSize: 14,
+  flex: 1,
+  textAlign: 'right',
+  color: 'gray',
 });
 
 const useStyles = makeStyles({
@@ -38,11 +49,17 @@ const useStyles = makeStyles({
 });
 
 const App = () => {
+  const maxActiveCount = useSelector(selectMaxActiveCount);
+  const dataForMap = useSelector(selectDataForMap);
   const rawData = useSelector(selectDataForGraph);
   const dispatch = useDispatch();
-  const { dataView, regionCode, districtCode, timeIntervalMs } = useSelector(
-    select
-  );
+  const {
+    dataView,
+    regionCode,
+    districtCode,
+    timeIntervalMs,
+    needle,
+  } = useSelector(select);
 
   const handleRegionDistrictChange = useCallback(
     (event) => {
@@ -82,7 +99,7 @@ const App = () => {
           value={dataView}
           onChange={handleDataViewChange}
         >
-          <MenuItem value={DataView.Country}>Stát</MenuItem>
+          {/* <MenuItem value={DataView.Country}>Stát</MenuItem> */}
           <MenuItem value={DataView.Region}>Kraj</MenuItem>
           <MenuItem value={DataView.District}>Okres</MenuItem>
         </Select>
@@ -103,6 +120,9 @@ const App = () => {
       </Toolbar>
       {dataView === DataView.District && (
         <DistrictsMap
+          data={dataForMap}
+          maxActiveCount={maxActiveCount}
+          style={{ flex: 1 }}
           onPointerMove={(code) => {
             if (code) {
               dispatch(setDistrictCode(code));
@@ -112,6 +132,9 @@ const App = () => {
       )}
       {dataView === DataView.Region && (
         <RegionsMap
+          data={dataForMap}
+          maxActiveCount={maxActiveCount}
+          style={{ flex: 1 }}
           onPointerMove={(code) => {
             if (code) {
               dispatch(setRegionCode(code));
@@ -126,8 +149,19 @@ const App = () => {
             dispatch(setTimeIntervalMs(newTimeIntervalMs));
           }}
         />
+        <SourceLink
+          href="https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Zdroj dat
+        </SourceLink>
       </Toolbar>
-      <Graph data={rawData} />
+      <Graph
+        data={rawData}
+        needle={needle.getTime()}
+        onChangeNeedle={(needle) => dispatch(setNeedle(new Date(needle)))}
+      />
     </Wrapper>
   );
 };

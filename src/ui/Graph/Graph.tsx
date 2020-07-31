@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useState } from 'react';
+import React, { useMemo, useCallback } from 'react';
 import {
   FlexibleXYPlot,
   XAxis,
@@ -7,20 +7,32 @@ import {
   HorizontalGridLines,
   LineSeries,
   Crosshair,
+  LineSeriesPoint,
 } from 'react-vis';
 import { DistrictStatsComputed } from '../../model/state';
+import 'react-vis/dist/style.css';
 
 export interface GraphProps {
   data: DistrictStatsComputed[];
+  needle?: number;
+  onChangeNeedle?: (needle: number) => void;
 }
 
-const Graph = ({ data }: GraphProps) => {
-  const derivedData = useMemo(() => {
+const formatDate = (date: Date) =>
+  `${date.getUTCDate()}. ${date.getUTCMonth()}. ${date.getUTCFullYear()}`;
+
+const Graph = ({ data, onChangeNeedle, needle }: GraphProps) => {
+  const derivedData = useMemo<LineSeriesPoint[]>(() => {
     return data.map((item) => ({
       x: item.date.getTime(),
       y: item.activeCount,
     }));
   }, [data]);
+
+  const detailPoint = useMemo(
+    () => (needle ? derivedData.find((item) => item.x === needle) : undefined),
+    [derivedData, needle]
+  );
 
   const { xDomain, yDomain } = useMemo(() => {
     let startDate = new Date();
@@ -46,16 +58,27 @@ const Graph = ({ data }: GraphProps) => {
     };
   }, [data]);
 
-  const [detailActiveCount, setDetailActiveCount] = useState<number | null>(
-    null
+  const handleNearestX = useCallback(
+    (value: LineSeriesPoint, { event }) => {
+      if (
+        (typeof event.buttons === 'undefined' || event.buttons === 1) &&
+        onChangeNeedle
+      ) {
+        onChangeNeedle(value.x);
+      }
+    },
+    [onChangeNeedle]
   );
 
-  const handleNearestX = useCallback((value) => {
-    setDetailActiveCount(value.y);
-  }, []);
-
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+    <div
+      style={{
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        userSelect: 'none',
+      }}
+    >
       <div style={{ flex: 1, position: 'relative' }}>
         <FlexibleXYPlot
           xDomain={xDomain}
@@ -76,11 +99,20 @@ const Graph = ({ data }: GraphProps) => {
               fill: 'none',
             }}
           />
-          <Crosshair />
+          <Crosshair
+            style={{
+              box: { display: 'none' },
+              line: { backgroundColor: '#bbb' },
+            }}
+            values={detailPoint ? [detailPoint] : undefined}
+          />
         </FlexibleXYPlot>
       </div>
-      <div style={{ padding: 16, opacity: detailActiveCount !== null ? 1 : 0 }}>
-        {detailActiveCount} aktivních nakažených ⤴️
+      <div
+        style={{ padding: 16, opacity: typeof needle !== 'undefined' ? 1 : 0 }}
+      >
+        {formatDate(new Date(detailPoint?.x || 0))}:{' '}
+        <strong>{detailPoint?.y}</strong> aktivních nakažených ⤴️
       </div>
     </div>
   );

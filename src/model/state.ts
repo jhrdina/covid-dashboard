@@ -77,6 +77,9 @@ export const rootSlice = createSlice({
     setTimeIntervalMs: (state, action: PayloadAction<number>) => {
       state.timeIntervalMs = action.payload;
     },
+    setNeedle: (state, action: PayloadAction<Date>) => {
+      state.needle = action.payload;
+    },
   },
 });
 
@@ -84,6 +87,7 @@ export const {
   setDistrictCode,
   setRegionCode,
   switchDataView,
+  setNeedle,
   setTimeIntervalMs,
 } = rootSlice.actions;
 
@@ -101,6 +105,7 @@ export const selectRegionCode = (state: RootState) => state.root.regionCode;
 export const selectDistrictCode = (state: RootState) => state.root.districtCode;
 export const selectTimeIntervalMs = (state: RootState) =>
   state.root.timeIntervalMs;
+export const selectNeedle = (state: RootState) => state.root.needle;
 
 const TODAY = new Date();
 
@@ -108,45 +113,48 @@ export interface DistrictStatsComputed extends DistrictStatsRecord {
   activeCount: number;
 }
 
+export const groupByRegion = (items: DistrictStatsRecord[]) => {
+  const groups: Record<string, DistrictStatsRecord> = {};
+  items.forEach((item) => {
+    const key = `${item.date.getUTCFullYear()}-${item.date.getUTCMonth()}-${item.date.getUTCDate()}_${
+      item.region
+    }`;
+    if (!groups[key]) {
+      groups[key] = { ...item, district: '' };
+    } else {
+      const existing = groups[key];
+      groups[key] = {
+        ...existing,
+        curedCount: existing.curedCount + item.curedCount,
+        deathCount: existing.deathCount + item.deathCount,
+        infectedCount: existing.infectedCount + item.infectedCount,
+      };
+    }
+  });
+
+  const newItems: DistrictStatsRecord[] = [];
+  Object.keys(groups).forEach((groupId) => newItems.push(groups[groupId]));
+  return newItems;
+};
+
+export const getMaxActiveCount = (items: DistrictStatsComputed[]) => {
+  let maxActiveCount = 0;
+  items.forEach((x) => {
+    if (x.activeCount > maxActiveCount) {
+      maxActiveCount = x.activeCount;
+    }
+  });
+  return maxActiveCount;
+};
+
 export const select = (state: RootState) => state.root;
-export const selectDataForGraph = createSelector(
+
+export const selectDataWithDataView = createSelector(
   selectRawData,
   selectDataView,
-  selectRegionCode,
-  selectDistrictCode,
-  selectTimeIntervalMs,
-  (rawData, dataView, regionCode, districtCode, timeIntervalMs) => {
-    let filtered = rawData.filter((x) => {
-      return (
-        ((dataView === DataView.District && x.district === districtCode) ||
-          (dataView === DataView.Region && x.region === regionCode)) &&
-        TODAY.getTime() - x.date.getTime() <= timeIntervalMs
-      );
-    });
-
-    if (dataView === DataView.Region) {
-      // Group by region
-      const groups: Record<string, DistrictStatsRecord> = {};
-      filtered.forEach((item) => {
-        const key = `${item.date.getUTCFullYear()}-${item.date.getUTCMonth()}-${item.date.getUTCDate()}_${
-          item.region
-        }`;
-        if (!groups[key]) {
-          groups[key] = { ...item, district: '' };
-        } else {
-          const existing = groups[key];
-          groups[key] = {
-            ...existing,
-            curedCount: existing.curedCount + item.curedCount,
-            deathCount: existing.deathCount + item.deathCount,
-            infectedCount: existing.infectedCount + item.infectedCount,
-          };
-        }
-      });
-      console.log(groups);
-      filtered = [];
-      Object.keys(groups).forEach((groupId) => filtered.push(groups[groupId]));
-    }
+  (rawData, dataView) => {
+    let filtered =
+      dataView === DataView.Region ? groupByRegion(rawData) : rawData;
 
     return filtered.map(
       (x): DistrictStatsComputed => {
@@ -156,6 +164,34 @@ export const selectDataForGraph = createSelector(
         };
       }
     );
+  }
+);
+
+export const selectMaxActiveCount = createSelector(
+  selectDataWithDataView,
+  (data) => getMaxActiveCount(data)
+);
+
+export const selectDataForMap = createSelector(
+  selectDataWithDataView,
+  selectNeedle,
+  (data, needle) => data.filter((x) => x.date.getTime() === needle.getTime())
+);
+
+export const selectDataForGraph = createSelector(
+  selectDataWithDataView,
+  selectDataView,
+  selectRegionCode,
+  selectDistrictCode,
+  selectTimeIntervalMs,
+  (rawData, dataView, regionCode, districtCode, timeIntervalMs) => {
+    return rawData.filter((x) => {
+      return (
+        ((dataView === DataView.District && x.district === districtCode) ||
+          (dataView === DataView.Region && x.region === regionCode)) &&
+        TODAY.getTime() - x.date.getTime() <= timeIntervalMs
+      );
+    });
   }
 );
 

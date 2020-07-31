@@ -5,10 +5,12 @@ export interface MapRegion {
   shape: string;
   type: string;
   code: string;
+  color: string;
 }
 
 export interface SvgMapProps {
-  data: MapRegion[];
+  regions: MapRegion[];
+  style?: React.CSSProperties;
   viewBox: string;
   onPointerMove?: (id: string | undefined) => void;
   onFinalChange?: (id: string | undefined) => void;
@@ -25,16 +27,17 @@ const getAttributeFromEventTarget = (
 };
 
 const SvgMap = ({
-  data,
+  regions,
   onPointerMove,
   onFinalChange,
+  style = {},
   viewBox,
 }: SvgMapProps) => {
   const lastNotified = useRef<string | undefined>(undefined);
   return (
     <svg
       viewBox={viewBox}
-      style={{ touchAction: 'none' }}
+      style={{ touchAction: 'none', ...style }}
       onPointerMove={(e) => {
         const id = getAttributeFromEventTarget(e, 'id');
         if (id !== lastNotified.current && e.buttons === 1 && onPointerMove) {
@@ -63,11 +66,11 @@ const SvgMap = ({
       }}
     >
       <g>
-        {data.map(({ type: elType, shape, code }) =>
+        {regions.map(({ type: elType, color, shape, code }) =>
           React.createElement(elType, {
             style: {
               stroke: '#888',
-              fill: 'white',
+              fill: color,
               strokeWidth: 1,
               strokeLinejoin: 'bevel',
             },
