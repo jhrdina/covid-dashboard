@@ -19,7 +19,7 @@ export interface GraphProps {
 }
 
 const formatDate = (date: Date) =>
-  `${date.getUTCDate()}. ${date.getUTCMonth()}. ${date.getUTCFullYear()}`;
+  `${date.getUTCDate()}. ${date.getUTCMonth() + 1}. ${date.getUTCFullYear()}`;
 
 const Graph = ({ data, onChangeNeedle, needle }: GraphProps) => {
   const derivedData = useMemo<LineSeriesPoint[]>(() => {
