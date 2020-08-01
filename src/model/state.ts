@@ -1,7 +1,8 @@
-import { DistrictStatsRecord, get as getCzDistricts } from '../api/czDistricts';
+import { get as getCzDistricts } from '../api/czDistrictsBig';
 
 import { createSlice, PayloadAction, createSelector } from '@reduxjs/toolkit';
 import { AppThunk, RootState } from './store';
+import DistrictStatsRecord from './DistrictStatsRecord';
 
 const DEFAULT_REGION = 'CZ064'; // Jihomoravský kraj
 const DEFAULT_DISTRICT = 'CZ0642'; // Brno-město
@@ -140,9 +141,7 @@ export const groupByRegion = (items: DistrictStatsRecord[]) => {
     }
   });
 
-  const newItems: DistrictStatsRecord[] = [];
-  Object.keys(groups).forEach((groupId) => newItems.push(groups[groupId]));
-  return newItems;
+  return Object.values(groups);
 };
 
 export const getMaxActiveCount = (items: DistrictStatsComputed[]) => {
