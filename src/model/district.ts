@@ -6,3 +6,5 @@ export const all = nuts
   .sort((a, b) => asc(a.name, b.name));
 
 export const byId = (id: string) => all.find((d) => d.id === id);
+
+export const getRegion = (district: string) => district.substring(0, 5);

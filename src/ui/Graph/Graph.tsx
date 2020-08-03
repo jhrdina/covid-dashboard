@@ -11,6 +11,7 @@ import {
 } from 'react-vis';
 import { DistrictStatsComputed } from '../../model/state';
 import 'react-vis/dist/style.css';
+import today from '../../utils/today';
 
 export interface GraphProps {
   data: DistrictStatsComputed[];
@@ -35,7 +36,7 @@ const Graph = ({ data, onChangeNeedle, needle }: GraphProps) => {
   );
 
   const { xDomain, yDomain } = useMemo(() => {
-    let startDate = new Date();
+    let startDate = today();
     let defaultValue = data.length > 0 ? data[0].activeCount : 0;
     let minY = defaultValue;
     let maxY = defaultValue;
@@ -53,7 +54,7 @@ const Graph = ({ data, onChangeNeedle, needle }: GraphProps) => {
     });
 
     return {
-      xDomain: [startDate, new Date()],
+      xDomain: [startDate, today()],
       yDomain: [minY, maxY],
     };
   }, [data]);

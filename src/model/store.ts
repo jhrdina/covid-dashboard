@@ -10,10 +10,12 @@ export const store = configureStore({
   reducer: {
     root: rootReducer,
   },
-  middleware: getDefaultMiddleware({
-    serializableCheck: false,
-    immutableCheck: false,
-  }),
+  middleware: [
+    ...getDefaultMiddleware({
+      serializableCheck: false,
+      immutableCheck: false,
+    }),
+  ],
 });
 
 export type RootState = ReturnType<typeof store.getState>;

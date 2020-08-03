@@ -3,6 +3,8 @@ import { get as getCzDistricts } from '../api/czDistrictsBig';
 import { createSlice, PayloadAction, createSelector } from '@reduxjs/toolkit';
 import { AppThunk, RootState } from './store';
 import DistrictStatsRecord from './DistrictStatsRecord';
+import today from '../utils/today';
+import { DAY_MS } from '../utils/constants';
 
 const DEFAULT_REGION = 'CZ064'; // Jihomoravský kraj
 const DEFAULT_DISTRICT = 'CZ0642'; // Brno-město
@@ -12,8 +14,6 @@ export enum DataView {
   Region = 'region',
   District = 'district',
 }
-
-const DAY_MS = 1000 * 60 * 60 * 24;
 
 type TimeInterval = {
   id: string;
@@ -116,7 +116,7 @@ export const selectTimeIntervalMs = (state: RootState) =>
   state.root.timeIntervalMs;
 export const selectNeedle = (state: RootState) => state.root.needle;
 
-const TODAY = new Date();
+const TODAY = today();
 
 export interface DistrictStatsComputed extends DistrictStatsRecord {
   activeCount: number;
