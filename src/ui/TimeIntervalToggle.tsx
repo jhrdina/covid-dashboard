@@ -26,7 +26,7 @@ const TimeIntervalToggle = ({
       onChange={handleChange}
     >
       {TIME_INTERVALS.map((x) => (
-        <ToggleButton key={x.id} value={x.milliseconds}>
+        <ToggleButton key={x.id} value={x.days}>
           {x.label}
         </ToggleButton>
       ))}

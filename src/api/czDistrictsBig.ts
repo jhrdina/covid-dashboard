@@ -3,6 +3,7 @@ import DistrictStatsRecord from '../model/DistrictStatsRecord';
 import { all as allDistricts, getRegion } from '../model/district';
 import today from '../utils/today';
 import { DAY_MS } from '../utils/constants';
+import { normalizeDate, dateToIsoDate } from '../utils/dateUtils';
 
 interface MzcrResponse<T> {
   data: T[];
@@ -20,22 +21,6 @@ interface AbroadInfectionMixin {
   nakaza_v_zahranici: boolean;
   nakaza_zeme_csu_kod: string;
 }
-
-/** 1.2.2020 -> 2020-2-1 */
-const formatIsoDate = (year: number, month: number, date: number) =>
-  `${year}-${month < 10 ? '0' : ''}${month}-${date < 10 ? '0' : ''}${date}`;
-
-const normalizeDate = (origDate: string) => {
-  const [date, month, year] = origDate.split('.');
-  return formatIsoDate(parseInt(year), parseInt(month), parseInt(date));
-};
-
-const dateToIsoDate = (date: Date) =>
-  formatIsoDate(
-    date.getUTCFullYear(),
-    date.getUTCMonth() + 1,
-    date.getUTCDate()
-  );
 
 const makeKey = (items: string[]) => items.join('_');
 

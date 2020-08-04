@@ -13,7 +13,7 @@ import {
   setDistrictCode,
   switchDataView,
   selectDataForGraph,
-  setTimeIntervalMs,
+  setTimeIntervalDays,
   selectDataForMap,
   selectMaxActiveCount,
   setNeedle,
@@ -70,7 +70,7 @@ const App = () => {
     dataView,
     regionCode,
     districtCode,
-    timeIntervalMs,
+    timeIntervalDays,
     needle,
   } = useSelector(select);
 
@@ -157,9 +157,9 @@ const App = () => {
       )}
       <Toolbar>
         <TimeIntervalToggle
-          value={timeIntervalMs}
+          value={timeIntervalDays}
           onChange={(newTimeIntervalMs) => {
-            dispatch(setTimeIntervalMs(newTimeIntervalMs));
+            dispatch(setTimeIntervalDays(newTimeIntervalMs));
           }}
         />
         <LinksBox>

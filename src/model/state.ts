@@ -18,14 +18,14 @@ export enum DataView {
 type TimeInterval = {
   id: string;
   label: string;
-  milliseconds: number;
+  days: number;
 };
 
 export const TIME_INTERVALS: TimeInterval[] = [
-  { id: '7days', label: '7 dní', milliseconds: 7 * DAY_MS },
-  { id: '14days', label: '14 dní', milliseconds: 14 * DAY_MS },
-  { id: '30days', label: '30 dní', milliseconds: 30 * DAY_MS },
-  { id: 'all', label: 'vše', milliseconds: 1000000 * DAY_MS },
+  { id: '7days', label: '7 dní', days: 7 },
+  { id: '14days', label: '14 dní', days: 14 },
+  { id: '30days', label: '30 dní', days: 30 },
+  { id: 'all', label: 'vše', days: 1000000 },
 ];
 
 interface State {
@@ -36,7 +36,7 @@ interface State {
   dataView: DataView;
   regionCode: string;
   districtCode: string;
-  timeIntervalMs: number;
+  timeIntervalDays: number;
 
   // Temporary settings
   needle: Date;
@@ -51,9 +51,9 @@ const initialState: State = {
     (window.localStorage.getItem('dataView') as DataView) || DataView.Region,
   regionCode: window.localStorage.getItem('regionCode') || DEFAULT_REGION,
   districtCode: window.localStorage.getItem('districtCode') || DEFAULT_DISTRICT,
-  timeIntervalMs:
-    parseInt(window.localStorage.getItem('timeIntervalMs') || '') ||
-    TIME_INTERVALS.find(({ id }) => id === '30days')!.milliseconds,
+  timeIntervalDays:
+    parseInt(window.localStorage.getItem('timeIntervalDays') || '') ||
+    TIME_INTERVALS.find(({ id }) => id === '30days')!.days,
 
   // Temporary settings
   needle: new Date(0),
@@ -83,8 +83,8 @@ export const rootSlice = createSlice({
     switchDataView: (state, action: PayloadAction<DataView>) => {
       state.dataView = action.payload;
     },
-    setTimeIntervalMs: (state, action: PayloadAction<number>) => {
-      state.timeIntervalMs = action.payload;
+    setTimeIntervalDays: (state, action: PayloadAction<number>) => {
+      state.timeIntervalDays = action.payload;
     },
     setNeedle: (state, action: PayloadAction<Date>) => {
       state.needle = action.payload;
@@ -92,12 +92,25 @@ export const rootSlice = createSlice({
   },
 });
 
+export const getItemsToPersist = ({
+  dataView,
+  regionCode,
+  districtCode,
+  timeIntervalDays,
+}: State) =>
+  ({
+    dataView,
+    regionCode,
+    districtCode,
+    timeIntervalDays,
+  } as any);
+
 export const {
   setDistrictCode,
   setRegionCode,
   switchDataView,
   setNeedle,
-  setTimeIntervalMs,
+  setTimeIntervalDays,
 } = rootSlice.actions;
 
 export const fetchDataAsync = (): AppThunk => (dispatch) => {
@@ -112,8 +125,8 @@ export const selectRawData = (state: RootState) => state.root.rawData;
 export const selectDataView = (state: RootState) => state.root.dataView;
 export const selectRegionCode = (state: RootState) => state.root.regionCode;
 export const selectDistrictCode = (state: RootState) => state.root.districtCode;
-export const selectTimeIntervalMs = (state: RootState) =>
-  state.root.timeIntervalMs;
+export const selectTimeIntervalDays = (state: RootState) =>
+  state.root.timeIntervalDays;
 export const selectNeedle = (state: RootState) => state.root.needle;
 
 const TODAY = today();
@@ -190,13 +203,13 @@ export const selectDataForGraph = createSelector(
   selectDataView,
   selectRegionCode,
   selectDistrictCode,
-  selectTimeIntervalMs,
-  (rawData, dataView, regionCode, districtCode, timeIntervalMs) => {
+  selectTimeIntervalDays,
+  (rawData, dataView, regionCode, districtCode, timeIntervalDays) => {
     return rawData.filter((x) => {
       return (
         ((dataView === DataView.District && x.district === districtCode) ||
           (dataView === DataView.Region && x.region === regionCode)) &&
-        TODAY.getTime() - x.date.getTime() <= timeIntervalMs
+        TODAY.getTime() - x.date.getTime() <= timeIntervalDays * DAY_MS
       );
     });
   }
