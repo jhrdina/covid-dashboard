@@ -5,6 +5,7 @@ import { AppThunk, RootState } from './store';
 import DistrictStatsRecord from './DistrictStatsRecord';
 import today from '../utils/today';
 import { DAY_MS } from '../utils/constants';
+import { dateToIsoDate } from '../utils/dateUtils';
 
 const DEFAULT_REGION = 'CZ064'; // Jihomoravský kraj
 const DEFAULT_DISTRICT = 'CZ0642'; // Brno-město
@@ -138,9 +139,7 @@ export interface DistrictStatsComputed extends DistrictStatsRecord {
 export const groupByRegion = (items: DistrictStatsRecord[]) => {
   const groups: Record<string, DistrictStatsRecord> = {};
   items.forEach((item) => {
-    const key = `${item.date.getUTCFullYear()}-${item.date.getUTCMonth()}-${item.date.getUTCDate()}_${
-      item.region
-    }`;
+    const key = `${dateToIsoDate(item.date)}_${item.region}`;
     if (!groups[key]) {
       groups[key] = { ...item, district: '' };
     } else {

@@ -45,8 +45,8 @@ const incrementField = (
       infectedCount: 0,
       curedCount: 0,
       deathCount: 0,
-      district: district,
-      region: region,
+      district,
+      region,
     };
   }
   grouped[groupKey][field]++;
@@ -78,7 +78,7 @@ export const get = (): Promise<DistrictStatsRecord[]> =>
         personList.forEach((person) => {
           incrementField(groupedByDateDistrict, {
             district: person.okres_lau_kod,
-            region: person.kraj_nuts_kod,
+            region: getRegion(person.okres_lau_kod),
             isoDate:
               personList === umrti ? normalizeDate(person.datum) : person.datum,
             field: fieldToIncrement,
