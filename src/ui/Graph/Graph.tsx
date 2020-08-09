@@ -94,9 +94,10 @@ const Graph = ({ data, onChangeNeedle, needle }: GraphProps) => {
         display: 'flex',
         flexDirection: 'column',
         userSelect: 'none',
+        minHeight: 0,
       }}
     >
-      <div style={{ flex: 1, position: 'relative' }}>
+      <div style={{ flex: 1, position: 'relative', minHeight: 0 }}>
         <FlexibleXYPlot
           xDomain={xDomain}
           yDomain={yDomain}
