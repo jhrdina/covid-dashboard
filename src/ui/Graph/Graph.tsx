@@ -55,7 +55,7 @@ const Graph = ({ data, onChangeNeedle, needle }: GraphProps) => {
 
     return {
       xDomain: [startDate, today()],
-      yDomain: [minY, maxY],
+      yDomain: [0, maxY],
     };
   }, [data]);
 
