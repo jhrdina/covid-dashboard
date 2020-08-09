@@ -3,7 +3,7 @@ import DistrictStatsRecord from '../model/DistrictStatsRecord';
 import { all as allDistricts, getRegion } from '../model/district';
 import today from '../utils/today';
 import { DAY_MS } from '../utils/constants';
-import { normalizeDate, dateToIsoDate } from '../utils/dateUtils';
+import { dateToIsoDate } from '../utils/dateUtils';
 
 interface MzcrResponse<T> {
   data: T[];
@@ -79,8 +79,7 @@ export const get = (): Promise<DistrictStatsRecord[]> =>
           incrementField(groupedByDateDistrict, {
             district: person.okres_lau_kod,
             region: getRegion(person.okres_lau_kod),
-            isoDate:
-              personList === umrti ? normalizeDate(person.datum) : person.datum,
+            isoDate: person.datum,
             field: fieldToIncrement,
           });
         });
