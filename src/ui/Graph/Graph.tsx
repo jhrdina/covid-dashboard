@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect } from 'react';
 import {
   FlexibleXYPlot,
   XAxis,
@@ -9,6 +9,9 @@ import {
   Crosshair,
   LineSeriesPoint,
 } from 'react-vis';
+import locale from '../../l10n/cs-CZ/dateFormat.json';
+import { timeFormatDefaultLocale, TimeLocaleDefinition } from 'd3-time-format';
+
 import { DistrictStatsComputed } from '../../model/state';
 import 'react-vis/dist/style.css';
 import today from '../../utils/today';
@@ -23,6 +26,10 @@ const formatDate = (date: Date) =>
   `${date.getUTCDate()}. ${date.getUTCMonth() + 1}. ${date.getUTCFullYear()}`;
 
 const Graph = ({ data, onChangeNeedle, needle }: GraphProps) => {
+  useEffect(() => {
+    timeFormatDefaultLocale(locale as TimeLocaleDefinition);
+  }, []);
+
   const derivedData = useMemo<LineSeriesPoint[]>(() => {
     return data.map((item) => ({
       x: item.date.getTime(),
