@@ -1,5 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { SHAPE_KEYS } from './common';
+import { makeStyles } from '@material-ui/core/styles';
 
 export interface MapRegion {
   shape: string;
@@ -10,6 +11,7 @@ export interface MapRegion {
 
 export interface SvgMapProps {
   regions: MapRegion[];
+  selectedRegionCode?: string;
   style?: React.CSSProperties;
   viewBox: string;
   onPointerMove?: (id: string | undefined) => void;
@@ -26,14 +28,37 @@ const getAttributeFromEventTarget = (
   return el && el.dataset ? el.dataset[attributeName] : undefined;
 };
 
+const useStyles = makeStyles({
+  region: {
+    stroke: '#888',
+    strokeWidth: 1,
+    strokeLinejoin: 'bevel',
+  },
+  regionSelection: {
+    fill: 'none',
+    stroke: '#444',
+    strokeWidth: 3,
+    strokeLinejoin: 'bevel',
+  },
+});
+
 const SvgMap = ({
   regions,
   onPointerMove,
   onFinalChange,
+  selectedRegionCode,
   style = {},
   viewBox,
 }: SvgMapProps) => {
+  const classes = useStyles();
   const lastNotified = useRef<string | undefined>(undefined);
+  const selectedRegion = useMemo(
+    () =>
+      typeof selectedRegionCode !== 'undefined'
+        ? regions.find(({ code }) => code === selectedRegionCode)
+        : undefined,
+    [selectedRegionCode, regions]
+  );
   return (
     <svg
       viewBox={viewBox}
@@ -68,17 +93,18 @@ const SvgMap = ({
       <g>
         {regions.map(({ type: elType, color, shape, code }) =>
           React.createElement(elType, {
-            style: {
-              stroke: '#888',
-              fill: color,
-              strokeWidth: 1,
-              strokeLinejoin: 'bevel',
-            },
+            className: classes.region,
+            style: { fill: color },
             key: code,
             'data-id': code,
             [SHAPE_KEYS[elType]]: shape,
           })
         )}
+        {selectedRegion &&
+          React.createElement(selectedRegion.type, {
+            className: classes.regionSelection,
+            [SHAPE_KEYS[selectedRegion.type]]: selectedRegion.shape,
+          })}
       </g>
     </svg>
   );

@@ -106,6 +106,9 @@ const App = () => {
 
   const classes = useStyles();
 
+  const selectedRegionCode =
+    dataView === DataView.Region ? regionCode : districtCode;
+
   return (
     <Wrapper>
       <Toolbar>
@@ -123,7 +126,7 @@ const App = () => {
         <Select
           variant="outlined"
           classes={{ outlined: classes.select }}
-          value={dataView === DataView.Region ? regionCode : districtCode}
+          value={selectedRegionCode}
           onChange={handleRegionDistrictChange}
         >
           {(dataView === DataView.Region ? allRegions : allDistricts).map(
@@ -139,6 +142,7 @@ const App = () => {
         <DistrictsMap
           data={dataForMap}
           maxActiveCount={maxActiveCount}
+          selectedRegionCode={selectedRegionCode}
           style={{ flex: 1 }}
           onPointerMove={(code) => {
             if (code) {
@@ -151,6 +155,7 @@ const App = () => {
         <RegionsMap
           data={dataForMap}
           maxActiveCount={maxActiveCount}
+          selectedRegionCode={selectedRegionCode}
           style={{ flex: 1 }}
           onPointerMove={(code) => {
             if (code) {
