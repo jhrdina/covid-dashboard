@@ -12,7 +12,7 @@ const TimeIntervalToggle = ({
 }) => {
   const handleChange = useCallback(
     (e, newValue: number) => {
-      if (onChange) {
+      if (onChange && newValue) {
         onChange(newValue);
       }
     },

@@ -23,9 +23,9 @@ type TimeInterval = {
 };
 
 export const TIME_INTERVALS: TimeInterval[] = [
-  { id: '7days', label: '7 dní', days: 7 },
   { id: '14days', label: '14 dní', days: 14 },
   { id: '30days', label: '30 dní', days: 30 },
+  { id: '60days', label: '60 dní', days: 60 },
   { id: 'all', label: 'vše', days: 1000000 },
 ];
 
@@ -41,6 +41,7 @@ interface State {
 
   // Temporary settings
   needle: Date;
+  loaded: boolean;
 }
 
 const initialState: State = {
@@ -58,6 +59,7 @@ const initialState: State = {
 
   // Temporary settings
   needle: new Date(0),
+  loaded: false,
 };
 
 export const rootSlice = createSlice({
@@ -74,6 +76,7 @@ export const rootSlice = createSlice({
         }
       });
       state.needle = new Date(maxTimestamp);
+      state.loaded = true;
     },
     setDistrictCode: (state, action: PayloadAction<string>) => {
       state.districtCode = action.payload;

@@ -22,23 +22,26 @@ import { all as allDistricts } from './model/district';
 import { all as allRegions } from './model/region';
 import Graph from './ui/Graph/Graph';
 import TimeIntervalToggle from './ui/TimeIntervalToggle';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const Wrapper = styled('div')({
   display: 'flex',
   flexDirection: 'column',
   height: '100vh',
   color: '#333333',
+  userSelect: 'none',
 });
 
 const Toolbar = styled('div')({
   display: 'flex',
   alignItems: 'center',
-  padding: '8px 16px',
+  padding: '8px',
 });
+
+const Spacer = styled('div')({ flex: 1 });
 
 const LinksBox = styled('div')({
   fontSize: 14,
-  flex: 1,
   textAlign: 'right',
 });
 
@@ -72,6 +75,7 @@ const App = () => {
     districtCode,
     timeIntervalDays,
     needle,
+    loaded,
   } = useSelector(select);
 
   const handleRegionDistrictChange = useCallback(
@@ -162,6 +166,7 @@ const App = () => {
             dispatch(setTimeIntervalDays(newTimeIntervalMs));
           }}
         />
+        <Spacer />
         <LinksBox>
           <SourceLink
             href="https://onemocneni-aktualne.mzcr.cz/api/v2/covid-19"
@@ -179,14 +184,21 @@ const App = () => {
           </SourceLink>
         </LinksBox>
       </Toolbar>
-      {rawData.length > 0 ? (
-        <Graph
-          data={rawData}
-          needle={needle.getTime()}
-          onChangeNeedle={(needle) => dispatch(setNeedle(new Date(needle)))}
-        />
+      {loaded ? (
+        rawData.length > 0 ? (
+          <Graph
+            data={rawData}
+            needle={needle.getTime()}
+            onChangeNeedle={(needle) => dispatch(setNeedle(new Date(needle)))}
+          />
+        ) : (
+          <NoData>Žádná data</NoData>
+        )
       ) : (
-        <NoData>Žádná data</NoData>
+        <NoData>
+          <CircularProgress />
+          <div style={{ marginTop: 8 }}>Načítání dat...</div>
+        </NoData>
       )}
     </Wrapper>
   );
