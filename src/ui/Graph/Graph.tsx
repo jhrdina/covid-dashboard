@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback, useEffect } from 'react';
+import React, { useMemo, useCallback, useEffect, useRef } from 'react';
 import {
   FlexibleXYPlot,
   XAxis,
@@ -66,8 +66,11 @@ const Graph = ({ data, onChangeNeedle, needle }: GraphProps) => {
     };
   }, [data]);
 
+  const nearestXRef = useRef(today().getTime());
+
   const handleNearestX = useCallback(
     (value: LineSeriesPoint, { event }) => {
+      nearestXRef.current = value.x;
       if (
         (typeof event.buttons === 'undefined' || event.buttons === 1) &&
         onChangeNeedle
@@ -77,6 +80,12 @@ const Graph = ({ data, onChangeNeedle, needle }: GraphProps) => {
     },
     [onChangeNeedle]
   );
+
+  const handleClick = useCallback(() => {
+    if (onChangeNeedle) {
+      onChangeNeedle(nearestXRef.current);
+    }
+  }, [onChangeNeedle]);
 
   return (
     <div
@@ -95,6 +104,7 @@ const Graph = ({ data, onChangeNeedle, needle }: GraphProps) => {
           style={{
             fontSize: 12,
           }}
+          onClick={handleClick}
         >
           <VerticalGridLines />
           <HorizontalGridLines />

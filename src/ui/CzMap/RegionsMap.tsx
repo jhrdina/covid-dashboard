@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import regions from './regions.json';
 import SvgMap, { SvgMapProps } from './SvgMap';
 import { DistrictStatsComputed } from '../../model/state';
-import { interpolateReds } from 'd3-scale-chromatic';
+import { valueToColor } from './common';
 
 const RegionsMap = ({
   data,
@@ -15,9 +15,9 @@ const RegionsMap = ({
   const enhanced = useMemo(() => {
     return regions.map((r) => ({
       ...r,
-      color: interpolateReds(
-        (data.find(({ region }) => region === r.code)?.activeCount || 0) /
-          (maxActiveCount || 1)
+      color: valueToColor(
+        data.find(({ region }) => region === r.code)?.activeCount || 0,
+        maxActiveCount
       ),
     }));
   }, [maxActiveCount, data]);

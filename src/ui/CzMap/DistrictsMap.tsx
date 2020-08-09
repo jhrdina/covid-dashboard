@@ -1,8 +1,8 @@
 import React, { useMemo } from 'react';
 import districts from './districts.json';
 import SvgMap, { SvgMapProps } from './SvgMap';
-import { interpolateReds } from 'd3-scale-chromatic';
 import { DistrictStatsComputed } from '../../model/state';
+import { valueToColor } from './common';
 
 const DistrictsMap = ({
   data,
@@ -15,9 +15,9 @@ const DistrictsMap = ({
   const enhanced = useMemo(() => {
     return districts.map((x) => ({
       ...x,
-      color: interpolateReds(
-        (data.find(({ district }) => district === x.code)?.activeCount || 0) /
-          (maxActiveCount || 1)
+      color: valueToColor(
+        data.find(({ district }) => district === x.code)?.activeCount || 0,
+        maxActiveCount
       ),
     }));
   }, [maxActiveCount, data]);
